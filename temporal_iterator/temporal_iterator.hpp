@@ -41,6 +41,8 @@ public:
 	basic_iterator(basic_iterator&&) = default;
 	basic_iterator& operator=(basic_iterator&&) = default;
 
+	auto operator<=>(const basic_iterator&) const = default;
+
 	reference operator*() const
 	{
 		return _current;

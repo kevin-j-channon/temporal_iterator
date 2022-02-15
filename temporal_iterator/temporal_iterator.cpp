@@ -67,4 +67,44 @@ namespace test_temporal_iterator
 		}
 	};
 
+	TEST_CLASS(TestComparison)
+	{
+	public:
+		TEST_METHOD(Equality)
+		{
+			const auto time_point = std::chrono::system_clock::now();
+
+			const auto it_1 = kjc::chrono::iterator{ time_point };
+			const auto it_2 = kjc::chrono::iterator{ time_point };
+
+			Assert::IsTrue(it_1 == it_2);
+			Assert::IsFalse(it_1 != it_2);
+		}
+
+		TEST_METHOD(Inequality)
+		{
+			const auto time_point = std::chrono::system_clock::now();
+
+			const auto it_1 = kjc::chrono::iterator{ time_point };
+			const auto it_2 = kjc::chrono::iterator{ time_point + 1us };
+
+			Assert::IsTrue(it_1 != it_2);
+			Assert::IsFalse(it_1 == it_2);
+		}
+
+		TEST_METHOD(LessAndGreater)
+		{
+			const auto time_point = std::chrono::system_clock::now();
+
+			const auto it_1 = kjc::chrono::iterator{ time_point };
+			const auto it_2 = kjc::chrono::iterator{ time_point + 1us };
+
+			Assert::IsTrue(it_1 < it_2);
+			Assert::IsFalse(it_2 < it_1);
+
+			Assert::IsTrue(it_2 > it_1);
+			Assert::IsFalse(it_1 > it_2);
+		}
+	};
+
 }	// namespace: test_temporal_iterator
