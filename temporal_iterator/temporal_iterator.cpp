@@ -55,6 +55,16 @@ namespace test_temporal_iterator
 			Assert::AreEqual(time_point + 100ms, *it++);
 			Assert::AreEqual(time_point + 200ms, *it);
 		}
+
+		TEST_METHOD(ConstructWithIncrement)
+		{
+			auto it = kjc::chrono::iterator{ 100ms };
+			const auto base_time = std::chrono::system_clock::now();
+			
+			for (auto i = 0; i < 10; ++i, ++it) {
+				Assert::IsTrue(approx_equal(*it, base_time + (i * 100ms), 10us));
+			}
+		}
 	};
 
 }	// namespace: test_temporal_iterator

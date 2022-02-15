@@ -19,19 +19,21 @@ public:
 	using pointer = const value_type*;
 	using difference_type = std::chrono::duration<typename value_type::rep, typename value_type::period>;
 
-	basic_iterator()
-		: _current{ value_type::clock::now() }
-		, _increment{}
-	{}
-
-	basic_iterator(value_type tp)
-		: _current{ tp }
-		, _increment{}
-	{}
-
 	basic_iterator(value_type tp, difference_type inc)
 		: _current{ tp }
 		, _increment{ inc }
+	{}
+
+	basic_iterator()
+		: basic_iterator{ value_type::clock::now(), difference_type{} }
+	{}
+
+	basic_iterator(value_type tp)
+		: basic_iterator{ tp, difference_type{} }
+	{}
+
+	basic_iterator(difference_type inc)
+		: basic_iterator{ value_type::clock::now(), inc }
 	{}
 
 	basic_iterator(const basic_iterator&) = default;
