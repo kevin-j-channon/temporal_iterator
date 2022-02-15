@@ -3,4 +3,7 @@
   <ItemGroup>
     <ClCompile Include="temporal_iterator.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="temporal_iterator.hpp" />
+  </ItemGroup>
 </Project>
