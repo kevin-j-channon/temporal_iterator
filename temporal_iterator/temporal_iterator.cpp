@@ -107,4 +107,19 @@ namespace test_temporal_iterator
 		}
 	};
 
+
+	TEST_CLASS(TestAlgorithms)
+	{
+	public:
+		TEST_METHOD(FindIf)
+		{
+			const auto begin = kjc::chrono::iterator{ 10ms };
+			const auto end = kjc::chrono::iterator{ std::chrono::system_clock::now() + 1s };
+
+			const auto it = std::find_if(begin, end, [](const auto&) { static int i = 0; return ++i == 20; });
+
+			Assert::IsTrue(it < end);
+		}
+	};
+
 }	// namespace: test_temporal_iterator
