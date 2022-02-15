@@ -34,6 +34,11 @@ public:
 		, _increment{ inc }
 	{}
 
+	basic_iterator(const basic_iterator&) = default;
+	basic_iterator& operator=(const basic_iterator&) = default;
+	basic_iterator(basic_iterator&&) = default;
+	basic_iterator& operator=(basic_iterator&&) = default;
+
 	reference operator*() const
 	{
 		return _current;
@@ -46,6 +51,14 @@ public:
 		_current = next_value;
 
 		return *this;
+	}
+
+	const basic_iterator operator++(int)
+	{
+		const auto temp = *this;
+		this->operator++();
+
+		return temp;
 	}
 
 private:

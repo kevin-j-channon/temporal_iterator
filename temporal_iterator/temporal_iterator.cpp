@@ -52,6 +52,8 @@ namespace test_temporal_iterator
 
 			Assert::AreEqual(time_point, *it);
 			Assert::AreEqual(time_point + 100ms, *(++it));
+			Assert::AreEqual(time_point + 100ms, *it++);
+			Assert::AreEqual(time_point + 200ms, *it);
 		}
 	};
 
