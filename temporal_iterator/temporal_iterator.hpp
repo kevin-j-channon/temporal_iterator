@@ -28,11 +28,11 @@ public:
 		: basic_iterator{ value_type::clock::now(), difference_type{} }
 	{}
 
-	basic_iterator(value_type tp)
+	explicit basic_iterator(value_type tp)
 		: basic_iterator{ tp, difference_type{} }
 	{}
 
-	basic_iterator(difference_type inc)
+	explicit basic_iterator(difference_type inc)
 		: basic_iterator{ value_type::clock::now(), inc }
 	{}
 
