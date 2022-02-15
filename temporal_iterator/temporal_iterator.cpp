@@ -33,16 +33,25 @@ namespace test_temporal_iterator
 	public:
 		TEST_METHOD(DefaultConstructionDereferencesToCurrentTime)
 		{
-			auto it = kjc::chrono::iterator<>{};
+			const auto it = kjc::chrono::iterator{};
 			Assert::IsTrue(approx_equal(*it, std::chrono::system_clock::now(), 10us));
 		}
 
 		TEST_METHOD(ConstructWithTimePoint)
 		{
 			const auto time_point = std::chrono::system_clock::now() + 1s;
-			auto it = kjc::chrono::iterator<>{ time_point };
+			const auto it = kjc::chrono::iterator{ time_point };
 
 			Assert::AreEqual(time_point, *it);
+		}
+
+		TEST_METHOD(ConstructWithTimePointAndIncrement)
+		{
+			const auto time_point = std::chrono::system_clock::now() + 1s;
+			auto it = kjc::chrono::iterator{time_point, 100ms};
+
+			Assert::AreEqual(time_point, *it);
+			Assert::AreEqual(time_point + 100ms, *(++it));
 		}
 	};
 
