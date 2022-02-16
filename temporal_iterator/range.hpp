@@ -25,7 +25,7 @@ public:
 		: _begin{ begin, step }
 		, _end{ end, step }
 	{
-//		assert(begin < end || begin == end);
+		assert(_begin <= _end);
 	}
 
 	basic_range(value_type begin, value_type end)
@@ -36,7 +36,7 @@ public:
 		: _begin{ value_type::clock::now(), step }
 		, _end{*_begin + duration, step}
 	{
-//		assert(begin < end || begin == end); 
+		assert(_begin <= _end); 
 	}
 
 	basic_range(interval_type duration)
