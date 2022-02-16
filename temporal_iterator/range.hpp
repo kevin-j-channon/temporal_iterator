@@ -37,7 +37,9 @@ public:
 		: _begin{ value_type::clock::now() }
 		, _end{_begin + duration}
 		, _step{step}
-	{}
+	{
+		assert(begin <= end); 
+	}
 
 	basic_range(interval_type duration)
 		: basic_range{ duration, interval_type{} }
