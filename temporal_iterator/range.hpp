@@ -22,11 +22,10 @@ public:
 	using const_iterator = iterator;
 
 	basic_range(value_type begin, value_type end, interval_type step)
-		: _begin{ begin }
-		, _end{ end }
-		, _step{ step }
+		: _begin{ begin, step }
+		, _end{ end, step }
 	{
-		assert(begin <= end);
+//		assert(begin < end || begin == end);
 	}
 
 	basic_range(value_type begin, value_type end)
@@ -34,11 +33,10 @@ public:
 	{}
 
 	basic_range(interval_type duration, interval_type step)
-		: _begin{ value_type::clock::now() }
-		, _end{_begin + duration}
-		, _step{step}
+		: _begin{ value_type::clock::now(), step }
+		, _end{*_begin + duration, step}
 	{
-		assert(begin <= end); 
+//		assert(begin < end || begin == end); 
 	}
 
 	basic_range(interval_type duration)
@@ -50,13 +48,12 @@ public:
 	basic_range(basic_range&&) = default;
 	basic_range& operator=(basic_range&&) = default;
 
-	auto begin() const { return iterator{ _begin, _step }; }
-	auto end() const { return iterator{ _end, _step }; }
+	auto begin() const { return _begin; }
+	auto end() const { return _end; }
 
 private:
-	const value_type _begin;
-	const value_type _end;
-	const interval_type _step;
+	const iterator _begin;
+	const iterator _end;
 };
 
 using range = basic_range<std::chrono::system_clock::time_point>;
