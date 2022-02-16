@@ -163,7 +163,8 @@
     <ClCompile Include="temporal_iterator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="temporal_iterator.hpp" />
+    <ClInclude Include="iterator.hpp" />
+    <ClInclude Include="range.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

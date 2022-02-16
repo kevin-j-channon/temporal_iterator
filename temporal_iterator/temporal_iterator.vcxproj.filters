@@ -4,6 +4,7 @@
     <ClCompile Include="temporal_iterator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="temporal_iterator.hpp" />
+    <ClInclude Include="iterator.hpp" />
+    <ClInclude Include="range.hpp" />
   </ItemGroup>
 </Project>

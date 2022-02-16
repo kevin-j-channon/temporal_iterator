@@ -1,9 +1,11 @@
 #include "CppUnitTest.h"
 
-#include "temporal_iterator.hpp"
+#include "iterator.hpp"
+#include "range.hpp"
 
 #include <string>
 #include <format>
+#include <chrono>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std::chrono_literals;
@@ -25,9 +27,8 @@ bool approx_equal(const Value_T& expected, const Value_T& actual, const Delta_T&
 
 }	// namespace: 
 
-namespace test_temporal_iterator
+namespace test_iterator
 {
-
 	TEST_CLASS(TestConstruction)
 	{
 	public:
@@ -122,4 +123,20 @@ namespace test_temporal_iterator
 		}
 	};
 
-}	// namespace: test_temporal_iterator
+}	// namespace: test_iterator
+
+namespace test_range
+{
+TEST_CLASS(TestConstruction)
+{
+public:
+	TEST_METHOD(ConstructWithBeginAndEndTimePoint)
+	{
+		const auto t = std::chrono::system_clock::now();
+		const auto time_range = kjc::chrono::range{ t, t + 10ms };
+
+		Assert::AreEqual(t, *time_range.begin());
+		Assert::AreEqual(t + 10ms, *time_range.end());
+	}
+};
+}
