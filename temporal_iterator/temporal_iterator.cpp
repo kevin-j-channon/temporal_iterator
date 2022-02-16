@@ -164,5 +164,10 @@ public:
 
 		Assert::IsTrue(time_range.end() == it);
 	}
+
+	TEST_METHOD(ConstructWithDurationOnly)
+	{
+		const auto time_range = kjc::chrono::range{ 100ms };
+	}
 };
 }
