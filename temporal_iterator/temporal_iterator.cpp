@@ -152,5 +152,17 @@ public:
 		++it;
 		Assert::AreEqual(t + 1ms, *it);
 	}
+
+	TEST_METHOD(ConstructWithDurationAndIncrement)
+	{
+		const auto time_range = kjc::chrono::range{ 100ms, 10ms };
+
+		auto it = time_range.begin();
+		for (auto i = 0; i < 10; ++i, ++it) {
+			Assert::AreEqual(*time_range.begin() + i * 10ms, *it);
+		}
+
+		Assert::IsTrue(time_range.end() == it);
+	}
 };
 }

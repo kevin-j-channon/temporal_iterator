@@ -31,11 +31,18 @@ public:
 		: basic_range{ begin, end, difference_type{} }
 	{}
 
+	basic_range(difference_type duration, difference_type step)
+		: _begin{ value_type::clock::now() }
+		, _end{_begin + duration}
+		, _step{step}
+	{}
+
 	auto begin() const { return iterator{ _begin, _step }; }
 	auto end() const { return iterator{ _end, _step }; }
 
 private:
-	const value_type _begin, _end;
+	const value_type _begin;
+	const value_type _end;
 	const difference_type _step;
 };
 
