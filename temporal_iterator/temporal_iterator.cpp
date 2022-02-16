@@ -138,5 +138,19 @@ public:
 		Assert::AreEqual(t, *time_range.begin());
 		Assert::AreEqual(t + 10ms, *time_range.end());
 	}
+
+	TEST_METHOD(ConstructWithBeginEndAndIncrement)
+	{
+		const auto t = std::chrono::system_clock::now();
+		const auto time_range = kjc::chrono::range{ t, t + 10ms, 1ms };
+
+		auto it = time_range.begin();
+
+		Assert::AreEqual(t, *it);
+		Assert::AreEqual(t + 10ms, *time_range.end());
+
+		++it;
+		Assert::AreEqual(t + 1ms, *it);
+	}
 };
 }
