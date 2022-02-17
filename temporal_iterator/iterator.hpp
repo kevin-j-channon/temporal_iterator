@@ -103,7 +103,7 @@ private:
 	interval_type _increment;
 };
 
-using iterator = basic_iterator<std::chrono::high_resolution_clock::time_point>;
+using iterator = basic_iterator<std::chrono::system_clock::time_point>;
 
 }
 }

@@ -170,6 +170,18 @@ namespace test_iterator
 
 			Assert::AreEqual(end, it);
 		}
+
+		TEST_METHOD(TransformForLogging)
+		{
+			using kjc::chrono::iterator;
+
+			std::stringstream log;
+			std::transform(iterator{ 1s, 50ms }, iterator{}, std::ostream_iterator<std::string>{log}, [](auto&& time_point) {
+				return std::format("{}: Log entry!\n", time_point);
+				});
+
+			Logger::WriteMessage(log.str().c_str());
+		}
 	};
 
 }	// namespace: test_iterator
