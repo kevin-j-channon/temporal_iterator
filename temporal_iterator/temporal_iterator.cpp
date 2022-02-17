@@ -10,15 +10,15 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std::chrono_literals;
 
 template<>
-std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString<std::chrono::system_clock::time_point>(const std::chrono::system_clock::time_point& tp)
+std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString<kjc::chrono::iterator::clock::time_point>(const kjc::chrono::iterator::clock::time_point& tp)
 {
-	return std::format(L"{}", tp);
+	return std::format(L"{}", tp.time_since_epoch());
 }
 
 template<>
 std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString<kjc::chrono::iterator>(const kjc::chrono::iterator& it)
 {
-	return std::format(L"(*{})", *it);
+	return ToString(*it);
 }
 
 namespace
@@ -44,15 +44,15 @@ namespace test_iterator
 
 		TEST_METHOD(ConstructWithTimePoint)
 		{
-			const auto time_point = std::chrono::system_clock::now() + 1s;
+			const auto time_point = kjc::chrono::iterator::clock::now() + 1s;
 			const auto it = kjc::chrono::iterator{ time_point };
 
-			Assert::IsTrue(approx_equal(*it, std::chrono::system_clock::now(), 10us));
+			Assert::IsTrue(approx_equal(*it, kjc::chrono::iterator::clock::now(), 10us));
 		}
 
 		TEST_METHOD(ConstructWithEndTimeAndIncrement)
 		{
-			const auto start_time = std::chrono::system_clock::now();
+			const auto start_time = kjc::chrono::iterator::clock::now();
 			const auto end_time = start_time + 1s;
 			auto it = kjc::chrono::iterator{end_time, 100ms};
 
@@ -65,7 +65,7 @@ namespace test_iterator
 		TEST_METHOD(ConstructWithDurationAndIncrement)
 		{
 			auto it = kjc::chrono::iterator{ 100ms, 10ms };
-			const auto now = std::chrono::system_clock::now();
+			const auto now = kjc::chrono::iterator::clock::now();
 			Assert::IsTrue(approx_equal(now, *it, 10us));
 
 			++it;
@@ -78,7 +78,7 @@ namespace test_iterator
 	public:
 		TEST_METHOD(Equality)
 		{
-			const auto time_point = std::chrono::system_clock::now();
+			const auto time_point = kjc::chrono::iterator::clock::now();
 
 			const auto it_1 = kjc::chrono::iterator{ time_point, time_point + 1s };
 			const auto it_2 = kjc::chrono::iterator{ time_point, time_point + 1s };
@@ -89,7 +89,7 @@ namespace test_iterator
 
 		TEST_METHOD(Inequality)
 		{
-			const auto time_point = std::chrono::system_clock::now();
+			const auto time_point = kjc::chrono::iterator::clock::now();
 
 			const auto it_1 = kjc::chrono::iterator{ time_point };
 			const auto it_2 = kjc::chrono::iterator{ time_point + 1us };
@@ -100,7 +100,7 @@ namespace test_iterator
 
 		TEST_METHOD(LessAndGreater)
 		{
-			const auto time_point = std::chrono::system_clock::now();
+			const auto time_point = kjc::chrono::iterator::clock::now();
 
 			const auto it_1 = kjc::chrono::iterator{ time_point };
 			const auto it_2 = kjc::chrono::iterator{ time_point + 1us };
@@ -113,6 +113,24 @@ namespace test_iterator
 		}
 	};
 
+	TEST_CLASS(TestIncrement)
+	{
+	public:
+		TEST_METHOD(ExpectedNumberOfIncrementsIn100ms)
+		{
+			for (auto i = 0; i < 20; ++i) {
+				const auto start = kjc::chrono::iterator::clock::now() + 50ms;
+				auto count = 0;
+				std::for_each(kjc::chrono::iterator{ start, 100ms, 10ms }, kjc::chrono::iterator{}, [&count](const auto&) {++count; });
+
+				const auto approx_end = kjc::chrono::iterator::clock::now();
+
+				Logger::WriteMessage(std::format("Duration: {}, count: {}\n", std::chrono::duration_cast<std::chrono::milliseconds>(approx_end - start), count).c_str());
+				Assert::IsTrue(approx_equal(std::chrono::duration_cast<std::chrono::milliseconds>(approx_end - start), 100ms, 10ms));
+			}
+
+		}
+	};
 
 	TEST_CLASS(TestAlgorithms)
 	{

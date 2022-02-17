@@ -19,6 +19,7 @@ public:
 	using pointer = const value_type*;
 	using difference_type = std::ptrdiff_t;
 	using interval_type = std::chrono::duration<typename value_type::rep, typename value_type::period>;
+	using clock = typename TimePoint_T::clock;
 
 	basic_iterator(value_type start, value_type end, interval_type inc)
 		: _current{ start }
@@ -28,6 +29,12 @@ public:
 
 	basic_iterator(value_type start, value_type end)
 		: basic_iterator{ start, end, interval_type{} }
+	{}
+
+	basic_iterator(value_type start, interval_type duration, interval_type inc)
+		: _current{ start }
+		, _end{ _current + duration }
+		, _increment{ inc }
 	{}
 
 	basic_iterator(value_type end, interval_type inc)
@@ -42,7 +49,7 @@ public:
 		, _increment{ inc }
 	{}
 
-	basic_iterator(interval_type duration)
+	explicit basic_iterator(interval_type duration)
 		: basic_iterator{ duration, interval_type{} }
 	{}
 
@@ -70,15 +77,15 @@ public:
 
 	basic_iterator& operator++()
 	{
+		_current += _increment;
+
 		if (_current >= _end) {
 			*this = basic_iterator{};
 			return *this;
 		}
 
-		auto next_value = _current + _increment;
+		std::this_thread::sleep_until(_current);
 		
-		std::this_thread::sleep_until(next_value);
-		_current = next_value;
 
 		return *this;
 	}
@@ -97,7 +104,7 @@ private:
 	interval_type _increment;
 };
 
-using iterator = basic_iterator<std::chrono::system_clock::time_point>;
+using iterator = basic_iterator<std::chrono::high_resolution_clock::time_point>;
 
 }
 }
