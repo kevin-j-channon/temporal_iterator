@@ -21,13 +21,30 @@ std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString<kjc::chrono
 	return ToString(*it);
 }
 
+template<>
+std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString<std::chrono::microseconds>(const std::chrono::microseconds& t)
+{
+	return std::format(L"{}", t);
+}
+
+template<>
+std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString<std::chrono::milliseconds>(const std::chrono::milliseconds& t)
+{
+	return std::format(L"{}", t);
+}
+
 namespace
 {
 
 template<typename Value_T, typename Delta_T>
 bool approx_equal(const Value_T& expected, const Value_T& actual, const Delta_T& delta)
 {
-	return (actual - delta < expected) && (actual + delta > expected);
+	if (!(actual - delta < expected) && (actual + delta > expected)) {
+		Logger::WriteMessage(std::format(L"Expected: {} +/- {}, actual: {}\n", ToString(expected), ToString(delta), ToString(actual)).c_str());
+		return false;
+	}
+
+	return true;
 }
 
 }	// namespace: 
@@ -124,9 +141,8 @@ namespace test_iterator
 				std::for_each(kjc::chrono::iterator{ start, 100ms, 10ms }, kjc::chrono::iterator{}, [&count](const auto&) {++count; });
 
 				const auto approx_end = kjc::chrono::iterator::clock::now();
-
-				Logger::WriteMessage(std::format("Duration: {}, count: {}\n", std::chrono::duration_cast<std::chrono::milliseconds>(approx_end - start), count).c_str());
-				Assert::IsTrue(approx_equal(std::chrono::duration_cast<std::chrono::milliseconds>(approx_end - start), 100ms, 10ms));
+				Assert::IsTrue(approx_equal(100ms, std::chrono::duration_cast<std::chrono::milliseconds>(approx_end - start), 10ms));
+				Assert::AreEqual(10, count);
 			}
 
 		}

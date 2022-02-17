@@ -86,7 +86,6 @@ public:
 
 		std::this_thread::sleep_until(_current);
 		
-
 		return *this;
 	}
 
