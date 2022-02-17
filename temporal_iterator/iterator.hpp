@@ -20,21 +20,40 @@ public:
 	using difference_type = std::ptrdiff_t;
 	using interval_type = std::chrono::duration<typename value_type::rep, typename value_type::period>;
 
-	basic_iterator(value_type tp, interval_type inc)
-		: _current{ tp }
+	basic_iterator(value_type start, value_type end, interval_type inc)
+		: _current{ start }
+		, _end{ end }
 		, _increment{ inc }
 	{}
 
+	basic_iterator(value_type start, value_type end)
+		: basic_iterator{ start, end, interval_type{} }
+	{}
+
+	basic_iterator(value_type end, interval_type inc)
+		: _current{ value_type::clock::now()}
+		, _end{ end }
+		, _increment{ inc }
+	{}
+
+	basic_iterator(interval_type duration, interval_type inc)
+		: _current{ value_type::clock::now() }
+		, _end{ _current + duration }
+		, _increment{ inc }
+	{}
+
+	basic_iterator(interval_type duration)
+		: basic_iterator{ duration, interval_type{} }
+	{}
+
+	explicit basic_iterator(value_type end)
+		: basic_iterator{ end, interval_type{} }
+	{}
+
 	basic_iterator()
-		: basic_iterator{ value_type::clock::now(), interval_type{} }
-	{}
-
-	explicit basic_iterator(value_type tp)
-		: basic_iterator{ tp, interval_type{} }
-	{}
-
-	explicit basic_iterator(interval_type inc)
-		: basic_iterator{ value_type::clock::now(), inc }
+		: _current{}
+		, _end{}
+		, _increment{}
 	{}
 
 	basic_iterator(const basic_iterator&) = default;
@@ -51,7 +70,13 @@ public:
 
 	basic_iterator& operator++()
 	{
-		const auto next_value = _current + _increment;
+		if (_current >= _end) {
+			*this = basic_iterator{};
+			return *this;
+		}
+
+		auto next_value = _current + _increment;
+		
 		std::this_thread::sleep_until(next_value);
 		_current = next_value;
 
@@ -68,6 +93,7 @@ public:
 
 private:
 	value_type _current;
+	value_type _end;
 	interval_type _increment;
 };
 

@@ -164,7 +164,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="iterator.hpp" />
-    <ClInclude Include="range.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

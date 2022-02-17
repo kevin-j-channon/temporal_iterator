@@ -1,7 +1,6 @@
 #include "CppUnitTest.h"
 
 #include "iterator.hpp"
-#include "range.hpp"
 
 #include <string>
 #include <format>
@@ -14,6 +13,12 @@ template<>
 std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString<std::chrono::system_clock::time_point>(const std::chrono::system_clock::time_point& tp)
 {
 	return std::format(L"{}", tp);
+}
+
+template<>
+std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString<kjc::chrono::iterator>(const kjc::chrono::iterator& it)
+{
+	return std::format(L"(*{})", *it);
 }
 
 namespace
@@ -32,10 +37,9 @@ namespace test_iterator
 	TEST_CLASS(TestConstruction)
 	{
 	public:
-		TEST_METHOD(DefaultConstructionDereferencesToCurrentTime)
+		TEST_METHOD(DefaultConstructionDereferencesToCur)
 		{
 			const auto it = kjc::chrono::iterator{};
-			Assert::IsTrue(approx_equal(*it, std::chrono::system_clock::now(), 10us));
 		}
 
 		TEST_METHOD(ConstructWithTimePoint)
@@ -43,28 +47,29 @@ namespace test_iterator
 			const auto time_point = std::chrono::system_clock::now() + 1s;
 			const auto it = kjc::chrono::iterator{ time_point };
 
-			Assert::AreEqual(time_point, *it);
+			Assert::IsTrue(approx_equal(*it, std::chrono::system_clock::now(), 10us));
 		}
 
-		TEST_METHOD(ConstructWithTimePointAndIncrement)
+		TEST_METHOD(ConstructWithEndTimeAndIncrement)
 		{
-			const auto time_point = std::chrono::system_clock::now() + 1s;
-			auto it = kjc::chrono::iterator{time_point, 100ms};
+			const auto start_time = std::chrono::system_clock::now();
+			const auto end_time = start_time + 1s;
+			auto it = kjc::chrono::iterator{end_time, 100ms};
 
-			Assert::AreEqual(time_point, *it);
-			Assert::AreEqual(time_point + 100ms, *(++it));
-			Assert::AreEqual(time_point + 100ms, *it++);
-			Assert::AreEqual(time_point + 200ms, *it);
+			Assert::IsTrue(approx_equal(start_time, *it, 20us));
+			Assert::IsTrue(approx_equal(start_time + 100ms, *(++it), 20us));
+			Assert::IsTrue(approx_equal(start_time + 100ms, *it++, 20us));
+			Assert::IsTrue(approx_equal(start_time + 200ms, *it, 20us));
 		}
 
-		TEST_METHOD(ConstructWithIncrement)
+		TEST_METHOD(ConstructWithDurationAndIncrement)
 		{
-			auto it = kjc::chrono::iterator{ 100ms };
-			const auto base_time = std::chrono::system_clock::now();
-			
-			for (auto i = 0; i < 10; ++i, ++it) {
-				Assert::IsTrue(approx_equal(*it, base_time + (i * 100ms), 10us));
-			}
+			auto it = kjc::chrono::iterator{ 100ms, 10ms };
+			const auto now = std::chrono::system_clock::now();
+			Assert::IsTrue(approx_equal(now, *it, 10us));
+
+			++it;
+			Assert::IsTrue(approx_equal(now + 10ms, *it, 10us));
 		}
 	};
 
@@ -75,8 +80,8 @@ namespace test_iterator
 		{
 			const auto time_point = std::chrono::system_clock::now();
 
-			const auto it_1 = kjc::chrono::iterator{ time_point };
-			const auto it_2 = kjc::chrono::iterator{ time_point };
+			const auto it_1 = kjc::chrono::iterator{ time_point, time_point + 1s };
+			const auto it_2 = kjc::chrono::iterator{ time_point, time_point + 1s };
 
 			Assert::IsTrue(it_1 == it_2);
 			Assert::IsFalse(it_1 != it_2);
@@ -112,62 +117,25 @@ namespace test_iterator
 	TEST_CLASS(TestAlgorithms)
 	{
 	public:
-		TEST_METHOD(FindIf)
+		TEST_METHOD(FindIfFinds)
 		{
-			const auto begin = kjc::chrono::iterator{ 10ms };
-			const auto end = kjc::chrono::iterator{ std::chrono::system_clock::now() + 1s };
+			const auto begin = kjc::chrono::iterator{ 1s , 10ms };
+			const auto end = kjc::chrono::iterator{};
 
 			const auto it = std::find_if(begin, end, [](const auto&) { static int i = 0; return ++i == 20; });
 
-			Assert::IsTrue(it < end);
+			Assert::AreNotEqual(end, it);
+		}
+
+		TEST_METHOD(FindIfDoesntFind)
+		{
+			const auto begin = kjc::chrono::iterator{ 100ms , 10ms };
+			const auto end = kjc::chrono::iterator{};
+
+			const auto it = std::find_if(begin, end, [](const auto&) { return false; });
+
+			Assert::AreEqual(end, it);
 		}
 	};
 
 }	// namespace: test_iterator
-
-namespace test_range
-{
-TEST_CLASS(TestConstruction)
-{
-public:
-	TEST_METHOD(ConstructWithBeginAndEndTimePoint)
-	{
-		const auto t = std::chrono::system_clock::now();
-		const auto time_range = kjc::chrono::range{ t, t + 10ms };
-
-		Assert::AreEqual(t, *time_range.begin());
-		Assert::AreEqual(t + 10ms, *time_range.end());
-	}
-
-	TEST_METHOD(ConstructWithBeginEndAndIncrement)
-	{
-		const auto t = std::chrono::system_clock::now();
-		const auto time_range = kjc::chrono::range{ t, t + 10ms, 1ms };
-
-		auto it = time_range.begin();
-
-		Assert::AreEqual(t, *it);
-		Assert::AreEqual(t + 10ms, *time_range.end());
-
-		++it;
-		Assert::AreEqual(t + 1ms, *it);
-	}
-
-	TEST_METHOD(ConstructWithDurationAndIncrement)
-	{
-		const auto time_range = kjc::chrono::range{ 100ms, 10ms };
-
-		auto it = time_range.begin();
-		for (auto i = 0; i < 10; ++i, ++it) {
-			Assert::AreEqual(*time_range.begin() + i * 10ms, *it);
-		}
-
-		Assert::IsTrue(time_range.end() == it);
-	}
-
-	TEST_METHOD(ConstructWithDurationOnly)
-	{
-		const auto time_range = kjc::chrono::range{ 100ms };
-	}
-};
-}
