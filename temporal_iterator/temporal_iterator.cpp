@@ -173,10 +173,10 @@ namespace test_iterator
 
 		TEST_METHOD(TransformForLogging)
 		{
-			using kjc::chrono::iterator;
+			using Iter_t = kjc::chrono::basic_iterator<std::chrono::system_clock::time_point>;
 
 			std::stringstream log;
-			std::transform(iterator{ 1s, 50ms }, iterator{}, std::ostream_iterator<std::string>{log}, [](auto&& time_point) {
+			std::transform(Iter_t{ 1s, 50ms }, Iter_t{}, std::ostream_iterator<std::string>{log}, [](auto&& time_point) {
 				return std::format("{}: Log entry!\n", time_point);
 				});
 
